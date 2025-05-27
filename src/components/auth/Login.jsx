@@ -22,7 +22,7 @@ const Login = () => {
     const timeout = setTimeout(() => controller.abort(), 10000); // Abort request after 10 seconds
 
     try {
-      const response = await fetch("https://zidio-task-management-backend.onrender.com/api/auth/login", {
+      const response = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password, role }),
@@ -38,7 +38,7 @@ const Login = () => {
         return;
       }
 
-      localStorage.setItem("token", data.token);
+      login(data.token, data.role);
       navigate(data.role === "admin" ? "/admin/dashboard" : "/user/dashboard");
     } catch (err) {
       if (err.name === "AbortError") {
@@ -87,11 +87,10 @@ const Login = () => {
 
           <button
             type="submit"
-            className={`w-full py-2 rounded-md shadow-md transition duration-200 text-white ${
-              loading
-                ? "bg-gray-400 cursor-not-allowed"
-                : "bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
-            }`}
+            className={`w-full py-2 rounded-md shadow-md transition duration-200 text-white ${loading
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-gradient-to-r from-blue-500 to-purple-600 hover:opacity-90"
+              }`}
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}

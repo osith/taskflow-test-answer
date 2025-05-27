@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import axios from "axios";
+import { useAuth } from "../../contexts/AuthContext";
+
 
 const Signup = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +16,7 @@ const Signup = () => {
   const location = useLocation();
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
+  const { signup } = useAuth();
 
   const role = location.state?.role || "user";
 
@@ -32,7 +35,7 @@ const Signup = () => {
 
     setLoading(true);
     try {
-      const res = await axios.post("https://zidio-task-management-backend.onrender.com/api/auth/register", {
+      const res = await axios.post("http://localhost:5000/api/auth/register", {
         fullName: formData.fullName,
         email: formData.email,
         password: formData.password,
@@ -40,7 +43,7 @@ const Signup = () => {
       });
 
       if (res.data.token) {
-        localStorage.setItem("token", res.data.token);
+        signup(res.data.token, role);
         navigate(role === "admin" ? "/admin/dashboard" : "/user/dashboard");
       } else {
         setError("Failed to receive token. Try again.");

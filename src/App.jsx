@@ -21,6 +21,7 @@ import ManageTasks from "./pages/AdminPages/ManageTasks";
 import Settings from "./pages/AdminPages/Settings";
 import ResetPassword from "./components/auth/ResetPassword";
 import TaskList from "./pages/UserPages/TaskList";
+import PrivateRoute from "./components/auth/PrivateRoute";
 
 function App() {
   return (
@@ -34,17 +35,92 @@ function App() {
             <Route path="/login" element={<Login />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/reset-password" element={<ResetPassword />} />
-            <Route path="/admin/dashboard" element={<Dashboard />} />
-            <Route path="/user/dashboard" element={<UserDashboard />} />
-            <Route path="/user/tasklist" element={<TaskList />} />
-            <Route path="/user/userpage" element={<UserPage />} /> 
-             <Route path="/user/notifications" element={<NotificationsPage />} />
-            <Route path="/user/calendar" element={<CalendarPage />} />
-            <Route path="/user/profile" element={<ProfilePage />} />
-            <Route path="/admin/users" element={<Users />} />
-            <Route path="/admin/manage-users" element={<ManageUsers />} />
-<Route path="/admin/manage-tasks" element={<ManageTasks />} />
-<Route path="/admin/settings" element={<Settings />} />
+
+            <Route
+              path="/admin/dashboard"
+              element={
+                <Dashboard />
+              }
+            />
+            <Route
+              path="/admin/users"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <Users />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/manage-users"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <ManageUsers />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/manage-tasks"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <ManageTasks />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/admin/settings"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <Settings />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/user/dashboard"
+              element={
+                <UserDashboard />
+              }
+            />
+            <Route
+              path="/user/userpage"
+              element={
+                <PrivateRoute allowedRoles={["user"]}>
+                  <UserPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user/tasklist"
+              element={
+                <PrivateRoute allowedRoles={["user"]}>
+                  <TaskList />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user/notifications"
+              element={
+                <PrivateRoute allowedRoles={["user"]}>
+                  <NotificationsPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user/calendar"
+              element={
+                <PrivateRoute allowedRoles={["user"]}>
+                  <CalendarPage />
+                </PrivateRoute>
+              }
+            />
+            <Route
+              path="/user/profile"
+              element={
+                <PrivateRoute allowedRoles={["user"]}>
+                  <ProfilePage />
+                </PrivateRoute>
+              }
+            />
           </Routes>
           <Footer />
         </Router>
