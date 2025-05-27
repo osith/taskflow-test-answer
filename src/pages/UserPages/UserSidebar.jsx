@@ -1,6 +1,6 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import { FaChartBar, FaTasks, FaCalendarAlt, FaBell, FaUser } from "react-icons/fa";
+import { FaChartBar, FaTasks, FaCalendarAlt, FaBell, FaUser, FaPlus } from "react-icons/fa";
 
 const UserSidebar = () => {
   const location = useLocation();
@@ -8,7 +8,8 @@ const UserSidebar = () => {
   // Sidebar links with icons
   const menuItems = [
     { path: "/user/dashboard", label: "Dashboard", icon: <FaChartBar /> },
-    { path: "/user/userpage", label: "Create Tasks", icon: <FaTasks /> },
+    { path: "/user/userpage", label: "Create Tasks", icon: <FaPlus /> },
+    { path: "/user/tasklist", label: "Task List", icon: <FaTasks /> },
     { path: "/user/calendar", label: "Calendar", icon: <FaCalendarAlt /> },
     { path: "/user/notifications", label: "Notifications", icon: <FaBell /> },
     { path: "/user/profile", label: "Profile", icon: <FaUser /> },
@@ -23,11 +24,10 @@ const UserSidebar = () => {
           <li key={path}>
             <Link
               to={path}
-              className={`flex items-center gap-3 py-3 px-5 rounded-lg transition-all duration-200 text-lg font-medium ${
-                location.pathname === path
+              className={`flex items-center gap-3 py-3 px-5 rounded-lg transition-all duration-200 text-lg font-medium ${location.pathname === path
                   ? "bg-blue-600 shadow-lg transform scale-105"
                   : "hover:bg-blue-700 hover:scale-105 transition"
-              }`}
+                }`}
             >
               <span className="text-xl">{icon}</span>
               {label}
