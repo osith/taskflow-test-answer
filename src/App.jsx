@@ -22,6 +22,7 @@ import Settings from "./pages/AdminPages/Settings";
 import ResetPassword from "./components/auth/ResetPassword";
 import TaskList from "./pages/UserPages/TaskList";
 import PrivateRoute from "./components/auth/PrivateRoute";
+import AdminUserLogs from "./pages/AdminPages/AdminUserLogs";
 
 function App() {
   return (
@@ -71,6 +72,15 @@ function App() {
               element={
                 <PrivateRoute allowedRoles={["admin"]}>
                   <Settings />
+                </PrivateRoute>
+              }
+            />
+
+            <Route
+              path="/admin/user-logs"
+              element={
+                <PrivateRoute allowedRoles={["admin"]}>
+                  <AdminUserLogs />
                 </PrivateRoute>
               }
             />

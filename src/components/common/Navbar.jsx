@@ -19,7 +19,7 @@ const Navbar = () => {
 
     // Load correct profile from localStorage
     const storedProfile = JSON.parse(localStorage.getItem(isAdminPortal ? "adminProfile" : "userProfile"));
-    
+
     if (storedProfile) {
       setProfile({
         name: storedProfile.name || "User",
@@ -31,8 +31,20 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      await logout();
       const isAdminPortal = location.pathname.startsWith("/admin");
+      if (!isAdminPortal) {
+        const token = localStorage.getItem("token");
+        await fetch("http://localhost:5000/api/auth/logout", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: token,
+          },
+          body: JSON.stringify({ token }),
+        });
+      }
+
+      await logout();
 
       // Remove the correct profile from storage
       localStorage.removeItem(isAdminPortal ? "adminProfile" : "userProfile");

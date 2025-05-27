@@ -27,6 +27,7 @@ const express = require("express");
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
+const UserLog = require("../models/UserLog");
 
 const router = express.Router();
 
@@ -76,6 +77,20 @@ router.post("/register", async (req, res) => {
             { expiresIn: "1h" }
         );
 
+        if (user.role == "user") {
+            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+            var activity = {
+                userId: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                role: user.role,
+                token,
+                ipAddress: ip,
+                action: "login"
+            }
+            await logUserActivity(activity);
+        }
+
         res.status(201).json({ message: "User registered successfully", token });
     } catch (error) {
         console.error(error);
@@ -83,12 +98,18 @@ router.post("/register", async (req, res) => {
     }
 });
 
+router.post("/logout", async (req, res) => {
+    const { token } = req.body;
+    await UserLog.findOneAndUpdate({ token }, { logoutTime: new Date() });
+    res.json({ message: "Logged out" });
+});
+
 // Login Route
 router.post("/login", async (req, res) => {
     try {
-        const { email, password,role} = req.body;
-       // console.log(req.body);
-       // console.log("Login attempt:", { email, password,role });
+        const { email, password, role } = req.body;
+        // console.log(req.body);
+        // console.log("Login attempt:", { email, password,role });
         // Find user
         const user = await User.findOne({ email });
         if (!user) return res.status(400).json({ message: "Invalid email or password" });
@@ -96,9 +117,8 @@ router.post("/login", async (req, res) => {
         // Check password using bcrypt
         const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) return res.status(400).json({ message: "Invalid email or password" });
-        if(role&&user.role!=role)
-        {
-            return res.status(403).json({message:"Unauthorized login attempt"});
+        if (role && user.role != role) {
+            return res.status(403).json({ message: "Unauthorized login attempt" });
         }
         // Generate JWT token
         const token = jwt.sign(
@@ -107,11 +127,42 @@ router.post("/login", async (req, res) => {
             { expiresIn: "1h" }
         );
 
+        if (user.role == "user") {
+            const ip = req.headers["x-forwarded-for"] || req.connection.remoteAddress;
+            var activity = {
+                userId: user._id,
+                fullName: user.fullName,
+                email: user.email,
+                role: user.role,
+                token,
+                ipAddress: ip,
+                action: "login"
+            }
+            await logUserActivity(activity);
+        }
+
         res.json({ message: "Login successful", token, role: user.role });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: "Server error", error });
     }
 });
+
+async function logUserActivity({ userId, fullName, email, role, token, ipAddress, action }) {
+    try {
+        await UserLog.create({
+            userId,
+            fullName,
+            email,
+            role,
+            token,
+            ipAddress,
+            loginTime: action === "login" ? new Date() : undefined,
+            signupTime: action === "signup" ? new Date() : undefined,
+        });
+    } catch (err) {
+        console.error("UserLog error:", err);
+    }
+}
 
 module.exports = router;
