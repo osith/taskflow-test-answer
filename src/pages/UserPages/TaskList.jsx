@@ -7,6 +7,9 @@ const TaskList = () => {
     const [isEditing, setIsEditing] = useState(false);
     const [editingTask, setEditingTask] = useState(null);
 
+    const [statusFilter, setStatusFilter] = useState("all");
+    const [searchTerm, setSearchTerm] = useState("");
+
     useEffect(() => {
         const storedTasks = JSON.parse(localStorage.getItem("tasks")) || [];
         setTasks(storedTasks);
@@ -35,6 +38,21 @@ const TaskList = () => {
         setIsEditing(false);
     };
 
+    const filteredTasks = tasks.filter((task) => {
+        const matchesStatus =
+            statusFilter === "all"
+                ? true
+                : statusFilter === "complete"
+                    ? task.progress === 100
+                    : task.progress < 100;
+
+        const matchesSearch = task.title
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
+
+        return matchesStatus && matchesSearch;
+    });
+
     return (
         <div className="flex">
             <UserSidebar />
@@ -43,16 +61,45 @@ const TaskList = () => {
 
                 <ToastContainer position="top-right" autoClose={3000} />
 
-                {tasks.length === 0 ? (
-                    <p>No tasks yet</p>
+                <div className="flex flex-col md:flex-row gap-4 mb-6">
+                    <input
+                        type="text"
+                        placeholder="🔍 Search by title..."
+                        className="w-full md:w-1/3 border p-2 rounded"
+                        value={searchTerm}
+                        onChange={(e) => setSearchTerm(e.target.value)}
+                    />
+                    <select
+                        className="w-full md:w-1/4 border p-2 rounded"
+                        value={statusFilter}
+                        onChange={(e) => setStatusFilter(e.target.value)}
+                    >
+                        <option value="all">All Tasks</option>
+                        <option value="complete">Completed</option>
+                        <option value="incomplete">Incomplete</option>
+                    </select>
+                </div>
+
+                {filteredTasks.length === 0 ? (
+                    <p>No matching tasks found.</p>
                 ) : (
-                    tasks.map((task) => (
-                        <div key={task.id} className="bg-white p-4 mb-4 border rounded shadow-sm">
+                    filteredTasks.map((task) => (
+                        <div
+                            key={task.id}
+                            className="bg-white p-4 mb-4 border rounded shadow-sm"
+                        >
                             <h2 className="text-xl font-semibold">{task.title}</h2>
                             <p>{task.description}</p>
-                            <p><strong>Assigned To:</strong> {task.assignedTo}</p>
-                            <p><strong>Deadline:</strong> {task.deadline}</p>
-                            <p><strong>Status:</strong> {task.progress === 100 ? "Complete" : "In Progress"}</p>
+                            <p>
+                                <strong>Assigned To:</strong> {task.assignedTo}
+                            </p>
+                            <p>
+                                <strong>Deadline:</strong> {task.deadline}
+                            </p>
+                            <p>
+                                <strong>Status:</strong>{" "}
+                                {task.progress === 100 ? "Complete" : "In Progress"}
+                            </p>
 
                             <div className="flex gap-4 mt-3">
                                 {task.progress < 100 && (
@@ -83,14 +130,20 @@ const TaskList = () => {
                                 className="w-full border p-2 mb-3"
                                 value={editingTask.title}
                                 onChange={(e) =>
-                                    setEditingTask({ ...editingTask, title: e.target.value })
+                                    setEditingTask({
+                                        ...editingTask,
+                                        title: e.target.value,
+                                    })
                                 }
                             />
                             <textarea
                                 className="w-full border p-2 mb-3"
                                 value={editingTask.description}
                                 onChange={(e) =>
-                                    setEditingTask({ ...editingTask, description: e.target.value })
+                                    setEditingTask({
+                                        ...editingTask,
+                                        description: e.target.value,
+                                    })
                                 }
                             />
                             <div className="flex justify-end gap-3">
